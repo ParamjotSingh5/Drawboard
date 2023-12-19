@@ -1,6 +1,6 @@
 
 # Drawbaord - Web-based Drawing App with React
-A simple yet powerful drawing app built with React, allowing you to create and manipulate shapes on a canvas.
+A simple yet powerful drawing app built with React, allowing you to create and manipulate shapes on a canvas. [Access the deployed version](https://paramjotsingh5.github.io/Drawboard/)
 
 ## Features:
 
