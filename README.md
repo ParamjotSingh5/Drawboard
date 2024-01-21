@@ -5,7 +5,7 @@ A simple yet powerful drawing app built with React, allowing you to create and m
 ## Features:
 
 ### Shape Creation:
-* Draw rectangles and lines with ease.
+* Draw rectangles and lines or use a pencil tool to draw freely.
 
 ### Element Manipulation:
 * Drag and drop elements to reposition them.
@@ -26,3 +26,5 @@ A simple yet powerful drawing app built with React, allowing you to create and m
 2. Install dependencies: `npm install`
 3. Start the development server: `npm start`
 4. Open `http://localhost:3000` in your browser and let the creativity flow! ✨
+
+![My try on Drawbaord](https://github.com/ParamjotSingh5/Drawboard/blob/master/Screenshot%202024-01-21%20211004.png)
