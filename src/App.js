@@ -1,7 +1,36 @@
 import './App.css';
-import { useEffect, useLayoutEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import {getStroke} from "perfect-freehand";
 import rough from 'roughjs/bundled/rough.esm';
+import Box from '@mui/material/Box';
+import Drawer from '@mui/material/Drawer';
+import Item from '@mui/material/Grid2';
+import Button from '@mui/material/Button';
+import UndoIcon from '@mui/icons-material/Undo';
+import RedoIcon from '@mui/icons-material/Redo';
+import HandymanIcon from '@mui/icons-material/Handyman';
+import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
+import OpenWithIcon from '@mui/icons-material/OpenWith';
+import ShowChartIcon from '@mui/icons-material/ShowChart';
+import CropSquareIcon from '@mui/icons-material/CropSquare';
+import GestureIcon from '@mui/icons-material/Gesture';
+import TextFieldsIcon from '@mui/icons-material/TextFields';
+
+import ButtonGroup from '@mui/material/ButtonGroup';
+
+import Fab from '@mui/material/Fab';
+
+import '@fontsource/roboto/500.css';
+
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormControl from '@mui/material/FormControl';
+import FormLabel from '@mui/material/FormLabel';
+
+
+import Typography from '@mui/material/Typography';
+
 
 const generator =  rough.generator();
 
@@ -20,6 +49,8 @@ function createElement(id, x1, y1, x2, y2, type){
       return {id, x1, y1, x2, y2, type, roughElement};
     case "pencil":
       return {id, type, points: [{x: x1, y:y1}]};
+    case "text":
+      return {id, type, x1, y1, text:""};      
     default:
       throw new Error(`Type not recognized: ${type}`);
   }  
@@ -51,7 +82,9 @@ const isWithinElement = (x, y, element) =>{
         if(!nextPoint) return false;
         return onLine(points.x, points.y, nextPoint.x, nextPoint.y, x, y, 2);
       });      
-      return betweenAnyPoint ? "inside": null
+      return betweenAnyPoint ? "inside": null;
+    case "text":
+      return x >= x1 && x <= x1 && y >= y1 && y <= y2 ? "inside": null;
     default:
       throw new Error(`Type not recognized: ${type}`);
   }
@@ -193,6 +226,10 @@ const drawElement = (roughCanvas, context, element) =>{
       }));
       context.fill(new Path2D(myStroke));
       break;
+    case "text":
+      context.font ="24px sans-serif";
+      context.fillText(element.text, element.x1, element.y1);
+      break;
     default:
       throw new Error(`Type not recognized: ${element.type}`);
   }
@@ -200,14 +237,18 @@ const drawElement = (roughCanvas, context, element) =>{
 
 const adjustmentRequired = (type) => ['line', 'rectangle'].includes(type);
 
+
 function App() {
   const[elements, setElements, undo, redo] = useHistory([]);
   const[action, setAction] = useState("none");
-  const[tool, setTool] = useState("line");
+  const[tool, setTool] = useState("text");
+  const [open, setOpen] = useState(false);
   const[selectedElement, setSelectedElement] = useState(null)
+  const textAreaRef = useRef();
 
   useLayoutEffect(() =>{
     const canvas = document.getElementById("canvas");
+    
     const context = canvas.getContext("2d");
     context.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -233,6 +274,11 @@ function App() {
     };
   }, [undo, redo]);
 
+  useEffect(() => {
+    const textArea = textAreaRef.current;
+    if(action === "writing") textArea.focus();
+  }, [action]);
+
   const updateElement = (index, x1, y1, x2, y2, tool) =>{
     const elementsCopy = [...elements];
 
@@ -250,6 +296,11 @@ function App() {
 
     setElements(elementsCopy, true);
   }
+
+  const toggleDrawer = (newOpen) => () => {
+    setOpen(newOpen);
+  };
+
 
   const handleMouseDown = (event) =>{
     const {clientX, clientY} = event;
@@ -280,7 +331,7 @@ function App() {
       const element = createElement(id, clientX, clientY, clientX, clientY, tool);
       setElements( prevState => [...prevState, element]);
       setSelectedElement(element);
-      setAction("drawing");
+      setAction(tool === "text" ? "writing" : "drawing");
     }
   };
 
@@ -294,6 +345,8 @@ function App() {
         updateElement(id, x1, y1, x2, y2, type);
       }
     }   
+
+    if(action === "writing") return;
 
     setAction("none");
     setSelectedElement(null);
@@ -341,53 +394,63 @@ function App() {
     }
   };
 
+  const handleToolSwitch = (event) =>{
+    
+  }
+
+  const DrawerList = (
+    <Box sx={{ width: 250 }} role="presentation" onClick={toggleDrawer(false)}>
+      <Typography variant="h5" component="div" sx={{ p: 2 }}>
+        haaaaaaaaaaaaa
+      </Typography>
+    </Box>
+  );
+
+  const floatingButton = (
+    <Box sx={{m:2, p: 2, position: "fixed", bottom: 0, right: 0, zIndex: 2000}} >
+      <Fab color="primary" sx={{m:1}} aria-label="undo" onClick={undo}>
+        <UndoIcon />
+      </Fab>
+      <Fab color="primary" sx={{m:1}} aria-label="redo" onClick={redo}>
+        <RedoIcon />
+      </Fab>
+    </Box>
+  )
+
+  const toolSelector =(
+    <Box
+    sx={{ position:'fixed', top: '25%', left: 0, zIndex: 0, p: 2, 
+      boxShadow: 24, borderRadius: 1
+    }}
+    >
+    <ButtonGroup orientation="vertical" aria-label="Vertical button group">
+      <Button key="selection" id='selection' value={"selection"} onClick={() => {setTool("selection"); handleToolSwitch(this)}} > <OpenWithIcon/></Button>
+      <Button key="line" id='line' value={"line"} onClick={() => {setTool("line"); handleToolSwitch(this)}}  ><ShowChartIcon/></Button>
+      <Button key="rectangle" id='rectangle' variant="contained" value={"rectangle"} onClick={() => {setTool("rectangle"); handleToolSwitch(this)}}  > <CropSquareIcon/></Button>
+      <Button key="pencil" id='pencil' value={"pencil"} onClick={() => {setTool("pencil"); handleToolSwitch(this)}}  > <GestureIcon/></Button>
+      <Button key="text" id='text' value={"text"} onClick={() => {setTool("text"); handleToolSwitch(this)}} > <TextFieldsIcon/></Button>
+    </ButtonGroup>
+    
+    </Box>
+  );
+
   return (
-  <div>
-    <div style={{position: "fixed"}}>
-      <input
-        type='radio'
-        id='selection'
-        checked = {tool === 'selection'}
-        onChange={() => setTool("selection")}
-        value={"selection"}
-      /><label htmlFor='selection'>Selection</label>
-      <input
-        type='radio'
-        id='line'
-        checked = {tool === 'line'}
-        onChange={() => setTool("line")}
-        value={"line"}
-      />
-      <label htmlFor='line'>Line</label>
-      <input
-        type='radio'
-        id='rectangle'
-        checked = {tool === 'rectangle'}
-        onChange={() => setTool("rectangle")}
-        value={"rectangle"}
-      />
-      <label htmlFor='rectangle'>Rectangle</label>
-      <input
-        type='radio'
-        id='pencil'
-        checked = {tool === 'pencil'}
-        onChange={() => setTool("pencil")}        
-      />
-      <label htmlFor='pencil'>Pencil</label>
-    </div>    
-    <div style={{position: "fixed", bottom:0, padding: 10}}>
-      <button onClick={undo}>Undo</button>
-      <button onClick={redo}>Redo</button>
-    </div>
-    <div>
-    <canvas id='canvas' height={window.innerHeight} 
-    width={window.innerWidth} 
-    onMouseDown={handleMouseDown}
-    onMouseUp={handleMouseUp}
-    onMouseMove={handleMouseMove}
-    > Canvas</canvas>
-    </div>
-   </div>
+    <Box>
+      <Button sx={{position: 'fixed', top: 20, left:0, p:2}} variant="contained" startIcon={<HandymanIcon />} endIcon={<KeyboardDoubleArrowRightIcon />} onClick={toggleDrawer(true)}> Select a tool </Button>
+      <Drawer open={open} onClose={toggleDrawer(false)}>
+        {DrawerList}
+      </Drawer>
+      {toolSelector}
+      {floatingButton}
+      <Item>
+        <canvas id='canvas' 
+        onMouseDown={handleMouseDown}
+        onMouseUp={handleMouseUp}
+        onMouseMove={handleMouseMove} height={window.innerHeight} 
+        width={window.innerWidth}
+        > Canvas</canvas>
+      </Item>
+    </Box>
   );
 }
 
