@@ -5,30 +5,21 @@ import rough from 'roughjs/bundled/rough.esm';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import Item from '@mui/material/Grid2';
+
 import Button from '@mui/material/Button';
+import ButtonGroup from '@mui/material/ButtonGroup';
+import Typography from '@mui/material/Typography';
+
+import MenuIcon from '@mui/icons-material/Menu';
 import UndoIcon from '@mui/icons-material/Undo';
 import RedoIcon from '@mui/icons-material/Redo';
-import HandymanIcon from '@mui/icons-material/Handyman';
-import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
 import OpenWithIcon from '@mui/icons-material/OpenWith';
 import ShowChartIcon from '@mui/icons-material/ShowChart';
 import CropSquareIcon from '@mui/icons-material/CropSquare';
 import GestureIcon from '@mui/icons-material/Gesture';
-import TextFieldsIcon from '@mui/icons-material/TextFields';
-
-import ButtonGroup from '@mui/material/ButtonGroup';
-
-import MenuIcon from '@mui/icons-material/Menu';
-
-import Typography from '@mui/material/Typography';
-
 
 const generator =  rough.generator();
 
-const Shapes = {
-  LINE: 'line',
-  RECTANGLE: 'rectangle'
-}  
 
 function createElement(id, x1, y1, x2, y2, type){  
   switch(type){
@@ -232,7 +223,7 @@ const adjustmentRequired = (type) => ['line', 'rectangle'].includes(type);
 function App() {
   const[elements, setElements, undo, redo] = useHistory([]);
   const[action, setAction] = useState("none");
-  const[tool, setTool] = useState("text");
+  const[tool, setTool] = useState("line");
   const [open, setOpen] = useState(false);
   const[selectedElement, setSelectedElement] = useState(null)
   const textAreaRef = useRef();
