@@ -18,16 +18,7 @@ import TextFieldsIcon from '@mui/icons-material/TextFields';
 
 import ButtonGroup from '@mui/material/ButtonGroup';
 
-import Fab from '@mui/material/Fab';
-
-import '@fontsource/roboto/500.css';
-
-import Radio from '@mui/material/Radio';
-import RadioGroup from '@mui/material/RadioGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import FormControl from '@mui/material/FormControl';
-import FormLabel from '@mui/material/FormLabel';
-
+import MenuIcon from '@mui/icons-material/Menu';
 
 import Typography from '@mui/material/Typography';
 
@@ -407,28 +398,31 @@ function App() {
   );
 
   const floatingButton = (
-    <Box sx={{m:2, p: 2, position: "fixed", bottom: 0, right: 0, zIndex: 2000}} >
-      <Fab color="primary" sx={{m:1}} aria-label="undo" onClick={undo}>
-        <UndoIcon />
-      </Fab>
-      <Fab color="primary" sx={{m:1}} aria-label="redo" onClick={redo}>
-        <RedoIcon />
-      </Fab>
+    <Box sx={{position: "fixed", top: '75%', left: 0, zIndex: 0, p: 1, 
+      boxShadow: 24, borderRadius: 3, m:1}} >
+      <ButtonGroup orientation="vertical" aria-label="Vertical button group">
+        <Button key="undo" id="undo" sx={{p:1}} value={"undo"} onClick={undo}>
+          <UndoIcon />
+        </Button>
+        <Button key="redo" id="redo" sx={{p:1}} value={"redo"} onClick={redo}>
+          <RedoIcon />
+        </Button>
+      </ButtonGroup>      
     </Box>
   )
 
   const toolSelector =(
     <Box
-    sx={{ position:'fixed', top: '25%', left: 0, zIndex: 0, p: 2, 
-      boxShadow: 24, borderRadius: 1
+    sx={{ position:'fixed', top: '25%', left: 0, zIndex: 0, p: 1, 
+      boxShadow: 24, borderRadius: 3, m:1
     }}
     >
     <ButtonGroup orientation="vertical" aria-label="Vertical button group">
-      <Button key="selection" id='selection' value={"selection"} onClick={() => {setTool("selection"); handleToolSwitch(this)}} > <OpenWithIcon/></Button>
-      <Button key="line" id='line' value={"line"} onClick={() => {setTool("line"); handleToolSwitch(this)}}  ><ShowChartIcon/></Button>
-      <Button key="rectangle" id='rectangle' variant="contained" value={"rectangle"} onClick={() => {setTool("rectangle"); handleToolSwitch(this)}}  > <CropSquareIcon/></Button>
-      <Button key="pencil" id='pencil' value={"pencil"} onClick={() => {setTool("pencil"); handleToolSwitch(this)}}  > <GestureIcon/></Button>
-      <Button key="text" id='text' value={"text"} onClick={() => {setTool("text"); handleToolSwitch(this)}} > <TextFieldsIcon/></Button>
+      <Button key="selection" id='selection' variant={tool === 'selection' ? 'contained' : 'text' } sx={{p:1, borderRadius: 3}} value={"selection"} onClick={() => {setTool("selection"); }} > <OpenWithIcon/></Button>
+      <Button key="line" id='line' sx={{p:1, borderRadius: 3}} variant={tool === 'line' ? 'contained' : 'text' } value={"line"} onClick={() => {setTool("line"); }}  ><ShowChartIcon/></Button>
+      <Button key="rectangle" id='rectangle' sx={{p:1, borderRadius: 3}} variant={tool === 'rectangle' ? 'contained' : 'text' } value={"rectangle"} onClick={() => {setTool("rectangle"); }}  > <CropSquareIcon/></Button>
+      <Button key="pencil" id='pencil' sx={{p:1, borderRadius: 3}} variant={tool === 'pencil' ? 'contained' : 'text' } value={"pencil"} onClick={() => {setTool("pencil"); handleToolSwitch(this)}}  > <GestureIcon/></Button>
+      
     </ButtonGroup>
     
     </Box>
@@ -436,7 +430,10 @@ function App() {
 
   return (
     <Box>
-      <Button sx={{position: 'fixed', top: 20, left:0, p:2}} variant="contained" startIcon={<HandymanIcon />} endIcon={<KeyboardDoubleArrowRightIcon />} onClick={toggleDrawer(true)}> Select a tool </Button>
+      <Button sx={{position: 'fixed', top: 20, left:0, p:2, backgroundColor:'white'}} variant="text" startIcon={<MenuIcon />} onClick={toggleDrawer(true)}>
+        <Typography variant="button" gutterBottom sx={{ display: 'block' }}>Dashboard
+        </Typography>
+      </Button>
       <Drawer open={open} onClose={toggleDrawer(false)}>
         {DrawerList}
       </Drawer>
@@ -447,7 +444,7 @@ function App() {
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
         onMouseMove={handleMouseMove} height={window.innerHeight} 
-        width={window.innerWidth}
+        width={window.innerWidth} style={{backgroundColor:"#656B811A"}}
         > Canvas</canvas>
       </Item>
     </Box>
